@@ -1,4 +1,3 @@
-
 (function (global) {
   'use strict';
 
@@ -20,6 +19,7 @@
       }
     }
 
+
     _loadSession() {
       try {
         const raw = localStorage.getItem(this.storageKey);
@@ -29,7 +29,7 @@
           this._token = data.token;
           this._user = { nick: data.nick, tag: data.tag, suid: data.suid };
         }
-      } catch (_)
+      } catch (_) {}
     }
 
     _saveSession(token, nick, tag, suid) {
@@ -40,7 +40,7 @@
           token, nick, tag, suid: suid || undefined,
           savedAt: Date.now()
         }));
-      } catch (_)
+      } catch (_) {}
     }
 
     _clearSession() {
@@ -52,6 +52,7 @@
     get user() { return this._user ? { ...this._user } : null; }
     get isLoggedIn() { return !!this._token; }
     get token() { return this._token; }
+
 
     async _request(method, path, body, isForm = false) {
       const headers = {};
@@ -107,6 +108,7 @@
       this._saveSession(data.token, data.nick, data.tag);
       return data;
     }
+
     async logout(server = true) {
       if (server && this._token) {
         try { await this._request('POST', '/auth/logout'); } catch (_) {}
@@ -145,13 +147,16 @@
     async remove(collection, id) {
       return this._request('DELETE', `/data/${encodeURIComponent(collection)}/${encodeURIComponent(id)}`);
     }
+
     async ensureIndex(collection, field, unique = false) {
       const q = new URLSearchParams({ field, unique: unique ? 'true' : 'false' });
       return this._request('POST', `/data/${encodeURIComponent(collection)}/index?${q}`);
     }
+
     async listImages() {
       return this._request('GET', '/images');
     }
+
     async uploadImage(file, filename) {
       const form = new FormData();
       form.append('file', file, filename || (file.name || 'image.png'));
@@ -161,10 +166,11 @@
     imageUrl(id) {
       return `${this.baseUrl}/images/${encodeURIComponent(id)}`;
     }
-  
+
     async deleteImage(id) {
       return this._request('DELETE', `/images/${encodeURIComponent(id)}`);
     }
+
     async connectHub() {
       if (typeof signalR === 'undefined') {
         throw new Error('SignalR client not found. Include @microsoft/signalr before kittydb.js');
@@ -223,7 +229,7 @@
       }
     }
   }
-  
+
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = KittyDB;
   } else {
